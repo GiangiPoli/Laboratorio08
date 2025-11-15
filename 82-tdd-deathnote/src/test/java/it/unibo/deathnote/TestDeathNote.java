@@ -1,12 +1,20 @@
 package it.unibo.deathnote;
 
-import it.unibo.deathnote.api.DeathNote;
 import it.unibo.deathnote.impl.DeathNoteImpl;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.junit.jupiter.api.Test;
 
 class TestDeathNote {    
     
+    //Class Fields
+    private final static String DEFAULT_DEATH_CAUSE = "Heart Attack";
+    final DeathNoteImpl dn = new DeathNoteImpl();
+
+    //Class Method
     /**
      * Rule number 0 and negative rules do not exist in the 
      * DeathNote rules:
@@ -26,7 +34,6 @@ class TestDeathNote {
     }
 
     public void findRule(final int ruleNumber) {
-        final DeathNoteImpl dn = new DeathNoteImpl();
         
         try {
             String actual = dn.getRule(ruleNumber);
@@ -54,6 +61,17 @@ class TestDeathNote {
      * Verify that the empty string has not been written in the 
      * notebook.
      */ 
+    @Test
+    public void testInsertHuman() {
+        dn.cancelDeathNote();
+        assertFalse( dn.isNameWritten("Gigi") );
+
+        dn.writeName("Gigi");
+        assertTrue( dn.isNameWritten("Gigi") );
+
+        assertFalse( dn.isNameWritten("Pippo") );
+        assertFalse( dn.isNameWritten("") );
+    }
 
     /**
      * If the cause of death is written within the next 40 
@@ -72,7 +90,40 @@ class TestDeathNote {
      * Try to change the cause of death.
      * Verify that the cause of death has not been changed.
      */
-    
+    @Test
+    public void testInsertCause() {
+        dn.cancelDeathNote();
+        try {
+            dn.writeDeathCause("Car Accident");
+        } catch (final IllegalStateException e) {
+            System.out.println("EXCEPTION GENERATED -> " 
+            + e.getMessage());
+        }
+
+        /*
+         * Cause inserting for Gigi
+         */
+        dn.writeName("Gigi");
+        assertTrue(dn.isNameWritten("Gigi"));
+        assertEquals(DEFAULT_DEATH_CAUSE,dn.getDeathCause("Gigi"));
+        
+        /*
+         * Cause inserting for Pippo (new human)
+         */
+        String pippoDeathCause = "karting accident";
+        dn.writeName("Pippo");
+        assertTrue( dn.writeDeathCause(pippoDeathCause) );
+        assertEquals(pippoDeathCause,dn.getDeathCause("Pippo"));
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            System.out.println("THIS THREAD IS ALREADY PAUSED -> "
+            + e.getMessage());
+        }
+        assertFalse(dn.writeDeathCause("high fall"));
+        assertEquals(pippoDeathCause,dn.getDeathCause("Pippo"));
+    }
+
     /**
      * After writing the cause of death, details of the death 
      * should be written in the next 6 seconds and 40 milliseconds
@@ -90,4 +141,53 @@ class TestDeathNote {
      * -Try to change the details.
      * -Verify that the details have not been changed.
      */ 
+    @Test
+    public void testInsertDetails() {
+        dn.cancelDeathNote();
+        try {
+            dn.writeDetails("prova che deve fallire");
+        } catch (final IllegalStateException e) {
+            System.out.println("EXCEPTION GENERATED -> "
+            + e.getMessage());
+        }
+
+        /*
+         * Details inserting for Gigi
+         */
+        dn.writeName("Gigi");
+        assertTrue(dn.isNameWritten("Gigi"));
+
+        System.out.println("INITIAL DETAILS -> expected: \t actual:" 
+        + dn.getDeathDetails("Gigi"));
+
+        assertEquals("", dn.getDeathDetails("Gigi"));
+        String gigiDeathDetails = "ran for too long";
+        assertTrue(dn.writeDetails(gigiDeathDetails));
+
+        System.out.println("NEW DETAILS -> expected: "
+        + gigiDeathDetails
+        + "\t actual: " 
+        + dn.getDeathDetails("Gigi"));
+        
+        assertEquals(gigiDeathDetails, dn.getDeathDetails("Gigi"));
+
+        /*
+         * Details inserting for Pippo (new human)
+         */
+        dn.writeName("Pippo");
+        try {
+            Thread.sleep(6100);
+        } catch (InterruptedException e) {
+            System.out.println("THIS THREAD IS ALREADY PAUSED -> "
+            + e.getMessage());
+        }
+        assertTrue(dn.isNameWritten("Pippo"));
+        dn.writeDetails(gigiDeathDetails);
+        
+        System.out.println("NEW DETAILS -> expected: \t actual: " 
+        + dn.getDeathDetails("Pippo"));
+        assertNotEquals(gigiDeathDetails, dn.getDeathDetails("Pippo"));
+        System.out.println("DETAILS DID NOT CHANGE CAUSE RUN OUT OF TIME");
+
+    }
 }
