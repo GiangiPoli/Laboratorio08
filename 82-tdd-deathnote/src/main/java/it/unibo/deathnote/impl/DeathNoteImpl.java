@@ -12,29 +12,40 @@ import it.unibo.deathnote.api.DeathNote;
 public class DeathNoteImpl implements DeathNote {
 
     //Class Fields
-    private final static String DEFAULT_DEATH_CAUSE = "Heart Attack";
-    private final static long TIME_TO_WRITE_DEATH_CAUSE = 40L;
-    private final static long TIME_TO_WRITE_DEATH_DETAILS = 6040L;
+    private static final String DEFAULT_DEATH_CAUSE = "Heart Attack";
+    private static final long TIME_TO_WRITE_DEATH_CAUSE = 40L;
+    private static final long TIME_TO_WRITE_DEATH_DETAILS = 6040L;
     private final List<PersonThatWillDie> deathNote;
     private long timeNameWrote;
 
     //Class Constructor
+
+    /*
+     * Turning Off this checkstyle because there is nothing 
+     * specific to say in javadoc about this constrctuctor
+     */
+    //CHECKSTYLE: MissingJavadocMethod OFF
     public DeathNoteImpl() {
         this.deathNote = new LinkedList<>();
     }
+    //CHECKSTYLE: MissingJavadocMethod ON
 
     //Class Method
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public String getRule( final int ruleNumber ) {
+    public String getRule(final int ruleNumber) {
         if (ruleNumber < 1) {
             throw new IllegalArgumentException("Rule Number less than 1");
         } else {
-            Iterator<String> iterator = RULES.iterator();
+            final Iterator<String> iterator = RULES.iterator();
             int counter = 1;
 
-            while ( iterator.hasNext() ) {
-                String result = iterator.next();
-                if ( ruleNumber == counter ) {
+            while (iterator.hasNext()) {
+                final String result = iterator.next();
+                if (ruleNumber == counter) {
                     return result;
                 }
                 counter++;
@@ -44,27 +55,30 @@ public class DeathNoteImpl implements DeathNote {
 
     }
 
-    
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void writeName(String name) {
-        if ( Objects.isNull(name) ) {
-            throw new NullPointerException("Name is NULL");
-        }
+    public void writeName(final String name) {
+        Objects.requireNonNull(name);
         this.deathNote.add(new PersonThatWillDie(name));
         timeNameWrote = System.currentTimeMillis();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public boolean writeDeathCause(String cause) {
-        if ( this.deathNote.isEmpty() ) {
+    public boolean writeDeathCause(final String cause) {
+        if (this.deathNote.isEmpty()) {
             throw new IllegalStateException("There is no name to assign the death cause");
-        } else if ( Objects.isNull(cause)  ) {
+        } else if (Objects.isNull(cause)) {
             throw new IllegalStateException("Cause is NULL");
         }
 
-        PersonThatWillDie lastPerson = getLast();
+        final PersonThatWillDie lastPerson = getLast();
 
-        if ( System.currentTimeMillis() - this.timeNameWrote <= TIME_TO_WRITE_DEATH_CAUSE ) {
+        if (System.currentTimeMillis() - this.timeNameWrote <= TIME_TO_WRITE_DEATH_CAUSE) {
             lastPerson.deathCause = cause;
             return true;
         } else {
@@ -72,17 +86,20 @@ public class DeathNoteImpl implements DeathNote {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public boolean writeDetails(String details) {
-        if ( this.deathNote.isEmpty() ) {
+    public boolean writeDetails(final String details) {
+        if (this.deathNote.isEmpty()) {
             throw new IllegalStateException("There is no name to assign the death cause");
-        } else if ( Objects.isNull(details)  ) {
+        } else if (Objects.isNull(details)) {
             throw new IllegalStateException("Details is NULL");
         }
 
-        PersonThatWillDie lastPerson = getLast();
+        final PersonThatWillDie lastPerson = getLast();
 
-        if ( System.currentTimeMillis() - this.timeNameWrote <= TIME_TO_WRITE_DEATH_DETAILS ) {
+        if (System.currentTimeMillis() - this.timeNameWrote <= TIME_TO_WRITE_DEATH_DETAILS) {
             lastPerson.deathDetails = details;
             return true;
         } else {
@@ -93,62 +110,75 @@ public class DeathNoteImpl implements DeathNote {
     private PersonThatWillDie getLast() {
         final Iterator<PersonThatWillDie> it = deathNote.iterator();
         PersonThatWillDie lastPerson = null;
-        while ( it.hasNext() ) {
-            lastPerson = it.next();     
+        while (it.hasNext()) {
+            lastPerson = it.next();
         }
         return lastPerson;
     }
-
+ 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public String getDeathCause(String name) {
-        if ( !isNameWritten(name) ) {
+    public String getDeathCause(final String name) {
+        if (!isNameWritten(name)) {
             throw new IllegalArgumentException("Name searched is not written in the Death Note");
         }
 
-        return getPersonWithName(name).deathCause;   
+        return getPersonWithName(name).deathCause;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public String getDeathDetails(String name) {
-        if ( !isNameWritten(name) ) {
+    public String getDeathDetails(final String name) {
+        if (!isNameWritten(name)) {
             throw new IllegalArgumentException("Name searched is not written in the Death Note");
         }
 
         return getPersonWithName(name).deathDetails;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public boolean isNameWritten(String name) {
-        return getPersonWithName(name) == null ? false : true;
+    public boolean isNameWritten(final String name) {
+        return getPersonWithName(name) != null;
     }
-     
-    private PersonThatWillDie getPersonWithName(String name) {
+
+    private PersonThatWillDie getPersonWithName(final String name) {
         final Iterator<PersonThatWillDie> it = deathNote.iterator();
-        PersonThatWillDie lastPerson = null;
-        while ( it.hasNext() ) {
+        PersonThatWillDie lastPerson;
+        while (it.hasNext()) {
             lastPerson = it.next();
-            if ( lastPerson.name == name ) {
+            if (lastPerson.name.equals(name)) {
                 return lastPerson;
-            }     
+            }
         }
         return null;
     }
 
+    /**
+     * This method cancel all the name from the Dath Note.
+     * I use this to make different test during the testing
+     */
     public void cancelDeathNote() {
         this.deathNote.clear();
     }
 
     //Inner Class
-    private class PersonThatWillDie {
-    
+    private final class PersonThatWillDie {
+
         //Class Fields
-        private String name;
+        private final String name;
         private String deathCause;
         private String deathDetails;
-        
+
         //Class Constructor
-        public PersonThatWillDie(String PersonName) {
-            name = PersonName;
+        private PersonThatWillDie(final String personName) {
+            name = personName;
             deathCause = DEFAULT_DEATH_CAUSE;
             deathDetails = "";
         }
