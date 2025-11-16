@@ -1,7 +1,7 @@
 package it.unibo.mvc;
 
 import java.lang.reflect.InvocationTargetException;
-    
+
 import it.unibo.mvc.api.DrawNumberController;
 import it.unibo.mvc.api.DrawNumberView;
 import it.unibo.mvc.controller.DrawNumberControllerImpl;
@@ -32,16 +32,16 @@ public final class LaunchApp {
 
         for (int i = 0; i < 3; i++) {
             try {
-                final DrawNumberView myFirstView = (DrawNumberView)Class.forName(firstView).getConstructor().newInstance();
-                final DrawNumberView mySecondView = (DrawNumberView)Class.forName(secondView).getConstructor().newInstance();
+                final DrawNumberView myFirstView = (DrawNumberView) Class.forName(firstView).getConstructor().newInstance();
+                final DrawNumberView mySecondView = (DrawNumberView) Class.forName(secondView).getConstructor().newInstance();
                 app.addView(myFirstView);
                 app.addView(mySecondView);
             } catch (InstantiationException | IllegalAccessException | IllegalArgumentException
                     | InvocationTargetException | NoSuchMethodException | SecurityException
                     | ClassNotFoundException e) {
-                e.printStackTrace();
+                System.out.println(e.getMessage());
             }
         }
-        
+
     }
 }

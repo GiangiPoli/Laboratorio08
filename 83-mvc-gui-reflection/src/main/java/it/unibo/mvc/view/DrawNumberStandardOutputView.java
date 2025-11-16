@@ -4,12 +4,12 @@ import it.unibo.mvc.api.DrawNumberController;
 import it.unibo.mvc.api.DrawNumberView;
 import it.unibo.mvc.api.DrawResult;
 
+/**
+ * Class to output on the Std Out.
+ */
 public class DrawNumberStandardOutputView implements DrawNumberView {
-
-    //Class Constructor
-
     /**
-     * Construct a new DrawNumberStandardOutputView
+     * Construct a new DrawNumberStandardOutputView.
      */
     public DrawNumberStandardOutputView() {
         /*
@@ -17,12 +17,12 @@ public class DrawNumberStandardOutputView implements DrawNumberView {
          */
     }
     //Class Method
-    
+
     /**
      * {@inheritDoc}
      */
     @Override
-    public void setController(DrawNumberController observer) {
+    public void setController(final DrawNumberController observer) {
         /*
          * NO NEED TO SET CONTROLLER: IS OUTPUT ONLY
          */
@@ -42,17 +42,20 @@ public class DrawNumberStandardOutputView implements DrawNumberView {
      * {@inheritDoc}
      */
     @Override
-    public void result(DrawResult res) {
+    public void result(final DrawResult res) {
         switch (res) {
             case YOURS_HIGH, YOURS_LOW -> {
+                // CHECKSTYLE: OFF
                 System.out.println("RESULT -> "
                 + res.getDescription());
-                return;
+                // CHECKSTYLE: ON
             }
             case YOU_WON, YOU_LOST -> {
+                // CHECKSTYLE: OFF
                 System.out.println("RESULT ->"
                 + res.getDescription()
                 + "\nNEW MATCH STARTING...");
+                // CHECKSTYLE: ON
             }
         }
     }
